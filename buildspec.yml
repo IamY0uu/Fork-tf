@@ -1,9 +1,29 @@
 version: 0.2
+
 phases:
+  install:
+    runtime-versions:
+      nodejs: 16
+    commands:
+      - echo Installing frontend and backend dependencies...
+      - cd application-code/frontend
+      - npm install
+      - cd ../backend
+      - npm install
+      - cd ../..
   build:
     commands:
-      - echo "Building project..."
-      - zip -r artifact.zip .
+      - echo Building React frontend...
+      - cd application-code/frontend
+      - npm run build
+      - echo Frontend build complete.
+  post_build:
+    commands:
+      - echo Zipping artifacts for deployment...
+      - cd application-code
+      - zip -r ../build-artifact.zip .
+      - echo Build and zip done.
+
 artifacts:
   files:
-    - artifact.zip
+    - build-artifact.zip
