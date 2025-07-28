@@ -2,28 +2,19 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      nodejs: 16
     commands:
-      - echo Installing frontend and backend dependencies...
-      - cd application-code/frontend
-      - npm install
-      - cd ../backend
-      - npm install
-      - cd ../..
+      - echo "Installing backend dependencies"
+      - cd app-tier && npm install && cd ..
+      - echo "Installing frontend dependencies"
+      - cd web-tier && npm install && cd ..
   build:
     commands:
-      - echo Building React frontend...
-      - cd application-code/frontend
-      - npm run build
-      - echo Frontend build complete.
-  post_build:
-    commands:
-      - echo Zipping artifacts for deployment...
-      - cd application-code
-      - zip -r ../build-artifact.zip .
-      - echo Build and zip done.
-
+      - echo "Building backend"
+      - cd app-tier && npm run build || echo "No build step for backend" && cd ..
+      - echo "Building frontend"
+      - cd web-tier && npm run build && cd ..
 artifacts:
   files:
-    - build-artifact.zip
+    - app-tier/**/*
+    - web-tier/**/*
+    - web-tier/nginx.conf
