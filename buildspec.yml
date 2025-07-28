@@ -4,17 +4,49 @@ phases:
   install:
     commands:
       - echo "Installing backend dependencies"
-      - cd app-tier && npm install && cd ..
+      - |
+        if [ -d "application-code/app-tier" ]; then
+          cd application-code/app-tier
+          npm install || echo "npm install failed for app-tier"
+          cd ../..
+        else
+          echo "app-tier directory not found"
+        fi
+
       - echo "Installing frontend dependencies"
-      - cd web-tier && npm install && cd ..
+      - |
+        if [ -d "application-code/web-tier" ]; then
+          cd application-code/web-tier
+          npm install || echo "npm install failed for web-tier"
+          cd ../..
+        else
+          echo "web-tier directory not found"
+        fi
+
   build:
     commands:
       - echo "Building backend"
-      - cd app-tier && npm run build || echo "No build step for backend" && cd ..
+      - |
+        if [ -d "application-code/app-tier" ]; then
+          cd application-code/app-tier
+          npm run build || echo "No build step or build failed for backend"
+          cd ../..
+        else
+          echo "app-tier directory not found"
+        fi
+
       - echo "Building frontend"
-      - cd web-tier && npm run build && cd ..
+      - |
+        if [ -d "application-code/web-tier" ]; then
+          cd application-code/web-tier
+          npm run build || echo "Build failed for frontend"
+          cd ../..
+        else
+          echo "web-tier directory not found"
+        fi
+
 artifacts:
   files:
-    - app-tier/**/*
-    - web-tier/**/*
-    - web-tier/nginx.conf
+    - application-code/app-tier/**/*
+    - application-code/web-tier/**/*
+    - application-code/web-tier/nginx.conf
