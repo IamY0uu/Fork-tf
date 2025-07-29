@@ -1,24 +1,49 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-      
-    stage('Build') {
-      steps {
-        echo "building stage ...."
-      }
+    environment {
+        AWS_DEFAULT_REGION = 'ap-south-1'
+        TF_DIR = 'infra'
     }
 
-    stage('Test') {
-      steps {
-        echo "testing stage...."
-      }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git url: 'https://github.com/your-username/3tier-infra-repo.git', branch: 'main'
+            }
+        }
+
+        stage('Init Terraform') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh 'terraform plan -out=tfplan'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh 'terraform apply -auto-approve tfplan'
+                }
+            }
+        }
     }
 
-    stage('Deploy') {
-      steps {
-        echo "deploy stage...."
-      }
+    post {
+        success {
+            echo "Infrastructure provisioned successfully!"
+        }
+        failure {
+            echo "Terraform apply failed."
+        }
     }
-  }
 }
